@@ -120,22 +120,23 @@ def add_book():
 @book_stash.route('/api/books/import', methods=['POST'])
 def import_book_from_google():
     response = request.json.get('data')
-    book_list = json.loads(response)
     books_to_add = []
-    for book in book_list:
-        title = book['title']
-        author = book['author']
-        publish_date = dt.datetime.strptime(book['publish_date'], '%Y-%m-%d')
-        isbn_num = book['isbn_num']
-        page_count = book['page_count']
-        cover_link = book['cover_link']
-        language = book['language']
-
-        new_book = Book(title, author, publish_date, isbn_num, page_count, cover_link, language)
+    for book in response:
+        # date = book['publish_date']
+        # if date:
+        #     if len(date) < 10:
+        #         date =
+        new_book = Book(book['title'],
+                        book['author'],
+                        dt.datetime.strptime(book['publish_date'], '%Y-%m-%d'),
+                        book['isbn_num'],
+                        book['page_count'],
+                        book['cover_link'],
+                        book['language'])
         books_to_add.append(new_book)
 
     try:
-        db.session.bulk_save_objects(book_list)
+        db.session.bulk_save_objects(books_to_add)
         db.session.commit()
     except SQLAlchemyError as e:
         error = str(e.__dict__['orig'])
