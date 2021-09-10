@@ -5,7 +5,6 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 from book_model import Book
 from book_model import db
-import datetime as dt
 
 book_stash = Blueprint('book_stash', __name__)
 
@@ -36,15 +35,6 @@ def get_books_by_query(query_type, query_field):
     return jsonify({'data': books})
 
 
-@book_stash.route('/api/books/<date_start>/<date_end>', methods=['GET'])
-def get_books_by_dates(date_start, date_end):
-    if not date_start or not date_end:
-        return jsonify({'msg': 'No dates'}), 409
-
-    books = Book.query.filter(Book.publish_date.between(date_start, date_end)).all()
-    return jsonify({'data': books})
-
-
 @book_stash.route('/api/books/delete/<book_id>', methods=['DELETE'])
 def delete_book(book_id):
     print(book_id)
@@ -72,7 +62,7 @@ def edit_book(book_id):
 
     book.title = request.json.get('title', None)
     book.author = request.json.get('author', None)
-    book.publish_date = dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d')
+    book.publish_date = request.json.get('publish_date', None)
     book.isbn_num = request.json.get('isbn_num', None)
     book.page_count = request.json.get('page_count', None)
     book.cover_link = request.json.get('cover_link', None)
@@ -94,7 +84,7 @@ def add_book():
 
     new_book = Book(request.json.get('title', None),
                     request.json.get('author', None),
-                    dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d'),
+                    request.json.get('publish_date', None),
                     request.json.get('isbn_num', None),
                     request.json.get('page_count', None),
                     request.json.get('cover_link', None),
@@ -117,7 +107,7 @@ def import_book_from_google():
     for book in response:
         new_book = Book(book['title'],
                         book['author'],
-                        parse(book['publish_date']),
+                        book['publish_date'],
                         book['isbn_num'],
                         book['page_count'],
                         book['cover_link'],

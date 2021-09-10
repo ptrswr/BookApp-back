@@ -1,4 +1,3 @@
-import datetime
 import os
 from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
@@ -16,7 +15,7 @@ class Book(db.Model):
     book_id: int
     title: str
     author: str
-    publish_date: datetime.datetime
+    publish_date: str
     isbn_num: int
     page_count: int
     cover_link: str
@@ -25,7 +24,7 @@ class Book(db.Model):
     book_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     author = db.Column(db.String)
-    publish_date = db.Column(db.DateTime)
+    publish_date = db.Column(db.String)
     isbn_num = db.Column(db.String)
     page_count = db.Column(db.Integer)
     cover_link = db.Column(db.String)
