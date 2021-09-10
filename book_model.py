@@ -13,6 +13,7 @@ db = SQLAlchemy()
 class Book(db.Model):
     __tablename__ = 'books'
 
+    book_id: int
     title: str
     author: str
     publish_date: datetime.datetime

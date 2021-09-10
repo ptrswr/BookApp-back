@@ -1,3 +1,5 @@
+import json
+
 from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -115,4 +117,38 @@ def add_book():
     return jsonify({'msg': 'New book added'}), 200
 
 
+@book_stash.route('/api/books/import', methods=['POST'])
+def import_book_from_google():
+    response = request.json.get('data')
+    book_list = json.loads(response)
+    books_to_add = []
+    for book in book_list:
+        title = book['title']
+        author = book['author']
+        publish_date = dt.datetime.strptime(book['publish_date'], '%Y-%m-%d')
+        isbn_num = book['isbn_num']
+        page_count = book['page_count']
+        cover_link = book['cover_link']
+        language = book['language']
 
+        new_book = Book(title, author, publish_date, isbn_num, page_count, cover_link, language)
+        books_to_add.append(new_book)
+
+    try:
+        db.session.bulk_save_objects(book_list)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        print(error)
+        return jsonify({"msg": "Database write error"}), 500
+
+    return jsonify({'msg': 'New book added'}), 200
+#  {
+#             "title":"Eloquent JavaScript, Third Edition",
+#             "author":"Marijn Haverbeke",
+#             "publish_date":"2018-12-04T00:00:00.000Z",
+#             "isbn_num":"9781593279509",
+#             "page_count": 4567,
+#             "cover_link":"http://eloquentjavascript.net/",
+#             "language":"English"
+# },
