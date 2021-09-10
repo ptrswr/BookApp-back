@@ -1,8 +1,8 @@
 import json
 
+from dateutil.parser import parse
 from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
-
 from book_model import Book
 from book_model import db
 import datetime as dt
@@ -16,9 +16,9 @@ def get_books():
     return jsonify({'data': books})
 
 
-@book_stash.route('/api/books/<id>', methods=['GET'])
-def get_book_by_id(id):
-    books = Book.query.filter_by(book_id=id).first()
+@book_stash.route('/api/books/<book_id>', methods=['GET'])
+def get_book_by_id(book_id):
+    books = Book.query.filter_by(book_id=book_id).first()
     return jsonify({'data': books})
 
 
@@ -54,8 +54,10 @@ def delete_book(book_id):
     try:
         db.session.delete(book)
         db.session.commit()
-    except:
-        return jsonify({"msg": "Database delete error"}), 500
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        print(error)
+        return jsonify({"msg": "Database write error"}), 500
     return jsonify({'msg': f'Book {book.title} was deleted'}), 200
 
 
@@ -64,29 +66,23 @@ def edit_book(book_id):
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    print(book_id)
     book = Book.query.filter_by(book_id=book_id).first()
     if not book:
         return jsonify({'msg': 'There is no book with given id'}), 409
 
-    title = request.json.get('title', None)
-    author = request.json.get('author', None)
-    publish_date = dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d')
-    isbn_num = request.json.get('isbn_num', None)
-    page_count = request.json.get('page_count', None)
-    cover_link = request.json.get('cover_link', None)
-    language = request.json.get('language', None)
+    book.title = request.json.get('title', None)
+    book.author = request.json.get('author', None)
+    book.publish_date = dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d')
+    book.isbn_num = request.json.get('isbn_num', None)
+    book.page_count = request.json.get('page_count', None)
+    book.cover_link = request.json.get('cover_link', None)
+    book.language = request.json.get('language', None)
 
     try:
-        book.title = title
-        book.author = author
-        book.publish_date = publish_date
-        book.isbn_num = isbn_num
-        book.page_count = page_count
-        book.cover_link = cover_link
-        book.language = language
         db.session.commit()
-    except:
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        print(error)
         return jsonify({"msg": "Database write error"}), 500
     return jsonify({'msg': f'Book {book.title} was changed'}), 200
 
@@ -96,19 +92,16 @@ def add_book():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    title = request.json.get('title', None)
-    author = request.json.get('author', None)
-    publish_date = dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d')
-    isbn_num = request.json.get('isbn_num', None)
-    page_count = request.json.get('page_count', None)
-    cover_link = request.json.get('cover_link', None)
-    language = request.json.get('language', None)
-
-    new_book = Book(title, author, publish_date, isbn_num, page_count, cover_link, language)
+    new_book = Book(request.json.get('title', None),
+                    request.json.get('author', None),
+                    dt.datetime.strptime(request.json.get('publish_date', None), '%Y-%m-%d'),
+                    request.json.get('isbn_num', None),
+                    request.json.get('page_count', None),
+                    request.json.get('cover_link', None),
+                    request.json.get('language', None))
     try:
         db.session.add(new_book)
         db.session.commit()
-
     except SQLAlchemyError as e:
         error = str(e.__dict__['orig'])
         print(error)
@@ -122,13 +115,9 @@ def import_book_from_google():
     response = request.json.get('data')
     books_to_add = []
     for book in response:
-        # date = book['publish_date']
-        # if date:
-        #     if len(date) < 10:
-        #         date =
         new_book = Book(book['title'],
                         book['author'],
-                        dt.datetime.strptime(book['publish_date'], '%Y-%m-%d'),
+                        parse(book['publish_date']),
                         book['isbn_num'],
                         book['page_count'],
                         book['cover_link'],
@@ -143,7 +132,7 @@ def import_book_from_google():
         print(error)
         return jsonify({"msg": "Database write error"}), 500
 
-    return jsonify({'msg': 'New book added'}), 200
+    return jsonify({'msg': 'Books imported'}), 200
 #  {
 #             "title":"Eloquent JavaScript, Third Edition",
 #             "author":"Marijn Haverbeke",
