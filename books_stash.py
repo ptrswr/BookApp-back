@@ -1,6 +1,3 @@
-import json
-
-from dateutil.parser import parse
 from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 from book_model import Book
@@ -23,26 +20,26 @@ def get_book_by_id(book_id):
 
 @book_stash.route('/api/books/search', methods=['GET'])
 def search_by_qstring():
-    q_string = request.args.get('q').split()
+    q_string = request.args.get('q').split('|')
     q_params = []
-    query = Book.query
+    query = db.session.query(Book)
     for q in q_string:
         q_params.append(q.split(':'))
     for param in q_params:
         if param[0] == "author":
-            query = query.filter(Book.author == param[1])
+            query = query.filter(Book.author.like(param[1]))
         elif param[0] == "title":
-            query = query.filter(Book.title == 'Hobbit')
+            query = query.filter(Book.title.like(param[1]))
         elif param[0] == "publishDate":
-            query = query.filter(Book.publish_date == param[1])
+            query = query.filter(Book.publish_date.like(param[1]))
         elif param[0] == "isbnNum":
-            query = query.filter(Book.isbn_num == param[1])
+            query = query.filter(Book.isbn_num.like(param[1]))
         elif param[0] == "pageCount":
-            query = query.filter(Book.page_count == param[1])
+            query = query.filter(Book.page_count.like(param[1]))
         elif param[0] == "coverLink":
-            query = query.filter(Book.cover_link == param[1])
+            query = query.filter(Book.cover_link.like(param[1]))
         elif param[0] == "language":
-            query = query.filter(Book.language == param[1])
+            query = query.filter(Book.language.like(param[1]))
 
     books = query.all()
     return jsonify({'data': books})

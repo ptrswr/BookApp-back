@@ -10,7 +10,6 @@ def create_app():
     db.init_app(app)
     CORS(app)
     with app.app_context():
-        db.drop_all()
         db.create_all()
         db.session.commit()
     app.register_blueprint(book_stash)
