@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-
 @dataclass
 class Book(db.Model):
     __tablename__ = 'books'

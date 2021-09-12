@@ -1,9 +1,9 @@
 from api import app
-import config
+from config import DevelopmentConf
 
 
 if __name__ == '__main__':
-    book_app = app.create_app(config.DevelopmentConf)
+    book_app = app.create_app(DevelopmentConf)
     book_app.run()
 
 

@@ -14,7 +14,7 @@ def get_books():
 
 
 @book_stash.route('/api/books/populate', methods=['GET'])
-def populate_DB():
+def populate_db():
     books_to_add = [
         Book(title="Ulysses", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
              cover_link="", language="english"),
@@ -147,7 +147,7 @@ def add_book():
 
 
 @book_stash.route('/api/books/import', methods=['POST'])
-def import_book_from_google():
+def add_many_books():
     response = request.json.get('data')
     books_to_add = []
     for book in response:
@@ -169,12 +169,3 @@ def import_book_from_google():
         return jsonify({"msg": "Database write error"}), 500
 
     return jsonify({'msg': 'Books imported'}), 200
-#  {
-#             "title":"Eloquent JavaScript, Third Edition",
-#             "author":"Marijn Haverbeke",
-#             "publish_date":"2018-12-04T00:00:00.000Z",
-#             "isbn_num":"9781593279509",
-#             "page_count": 4567,
-#             "cover_link":"http://eloquentjavascript.net/",
-#             "language":"English"
-# },
