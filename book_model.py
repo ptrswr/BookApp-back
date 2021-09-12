@@ -1,11 +1,8 @@
-import os
 from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 
-project_dir = os.path.dirname(os.path.abspath(__file__))
-database_file = "sqlite:///{}".format(os.path.join(project_dir, "book_database.db"))
-
 db = SQLAlchemy()
+
 
 
 @dataclass

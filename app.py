@@ -1,12 +1,13 @@
 from flask import Flask
 from flask_cors import CORS
 from books_stash import book_stash
-from book_model import db, database_file
+from book_model import db
 
 
-def create_app():
+
+def create_app(conf):
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_file
+    app.config.from_object(conf)
     db.init_app(app)
     CORS(app)
     with app.app_context():
@@ -14,8 +15,3 @@ def create_app():
         db.session.commit()
     app.register_blueprint(book_stash)
     return app
-
-
-if __name__ == '__main__':
-    app = create_app()
-    app.run()

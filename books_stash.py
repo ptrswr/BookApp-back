@@ -2,6 +2,8 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 from book_model import Book
 from book_model import db
+from numpy import genfromtxt
+from config import CSV_FOR_TESTS
 
 book_stash = Blueprint('book_stash', __name__)
 
@@ -10,6 +12,27 @@ book_stash = Blueprint('book_stash', __name__)
 def get_books():
     books = Book.query.all()
     return jsonify({'data': books})
+
+
+@book_stash.route('/api/books/populate', methods=['GET'])
+def populate_DB():
+    books_to_add = [
+        Book(title="Ulysses", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
+             cover_link="", language="english"),
+        Book(title="Test 1", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
+             cover_link="", language="english"),
+        Book(title="Test 2", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
+             cover_link="", language="english")
+    ]
+    try:
+        db.session.bulk_save_objects(books_to_add)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        print(error)
+        return jsonify({"msg": "Database write error"}), 500
+
+    return jsonify({"msg": "Db populated"}), 200
 
 
 @book_stash.route('/api/books/<book_id>', methods=['GET'])
