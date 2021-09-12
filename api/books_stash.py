@@ -16,12 +16,12 @@ def get_books():
 @book_stash.route('/api/books/populate', methods=['GET'])
 def populate_db():
     books_to_add = [
-        Book(title="Ulysses", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
-             cover_link="", language="english"),
-        Book(title="Test 1", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
-             cover_link="", language="english"),
-        Book(title="Test 2", author="Joyce", publish_date="2012", isbn_num="2312871312", page_count="234",
-             cover_link="", language="english")
+        Book(title="Base Book 1", author="Joyce", publish_date="2012", isbn_num="2312212", page_count="111",
+             cover_link="wp.pl", language="english"),
+        Book(title="Test 1", author="Joyce", publish_date="02/03/2012", isbn_num="231312312", page_count="2334",
+             cover_link="google.com", language="english"),
+        Book(title="Test 2", author="Joyce", publish_date="04/05/2011", isbn_num="243234271312", page_count="2234",
+             cover_link="cmon.pl", language="english")
     ]
     try:
         db.session.bulk_save_objects(books_to_add)
