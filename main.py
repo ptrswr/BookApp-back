@@ -1,5 +1,5 @@
-from api import app
-from api.config import DevelopmentConf
+import app
+from config import DevelopmentConf
 
 
 if __name__ == '__main__':

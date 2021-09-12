@@ -1,8 +1,8 @@
 import unittest
 import json
-from api.config import *
-from api.app import create_app, db
-from api.book_model import Book
+from config import *
+from app import create_app, db
+from book_model import Book
 
 
 class TestBase(unittest.TestCase):
