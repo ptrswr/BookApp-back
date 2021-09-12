@@ -4,7 +4,6 @@ from books_stash import book_stash
 from book_model import db
 
 
-
 def create_app(conf):
     app = Flask(__name__)
     app.config.from_object(conf)

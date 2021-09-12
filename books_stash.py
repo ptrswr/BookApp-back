@@ -2,8 +2,7 @@ from flask import request, jsonify, Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 from book_model import Book
 from book_model import db
-from numpy import genfromtxt
-from config import CSV_FOR_TESTS
+
 
 book_stash = Blueprint('book_stash', __name__)
 

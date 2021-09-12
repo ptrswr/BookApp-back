@@ -2,9 +2,7 @@ import unittest
 import json
 from config import *
 from app import create_app, db
-
-
-
+from book_model import Book
 
 
 class TestBase(unittest.TestCase):
@@ -33,49 +31,62 @@ class TestModels(TestBase):
         self.assertEqual(len(data['data']), 3)
         self.assertEqual(response.status_code, 200)
 
+
 #
-# class TestAddEdit(TestBase):
-#
-#     def test_add_fragment(self):
-#         response = self.app_test.post('/api/fragments/add',
-#                                       json={
-#                                           "area_id": 1,
-#                                           "point_start": 1,
-#                                           "point_end": 2,
-#                                           "name": "Odcinek 1",
-#                                           "length": 2500,
-#                                           "scoring_up": 8,
-#                                           "scoring_down": 3,
-#                                           "climb_length": 600,
-#                                           "fragment_type": "punktowany"
-#                                       },
-#                                       headers={'Authorization': 'Bearer ' + self.token})
-#         self.assertEqual(response.status_code, 200)
-#
-#     def test_book_add(self):
-#         user_login = get_jwt_identity()
-#         response = self.app_test.post('/api/trips/add',
-#                                       json={
-#                                           "name": "Niedzielna wycieczka",
-#                                           "user_login": user_login,
-#                                           "date_start": "2020-08-07",
-#                                           "date_end": "2020-08-09",
-#                                           "score_sum": 24,
-#                                       },
-#                                       headers={'Authorization': 'Bearer ' + self.token})
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(Trip.query.count(), 1)
-#
-#     def test_edit_non_existing_book(self):
-#         response = self.app_test.post('/api/fragments/edit/4',
-#                                       json={},
-#                                       headers={'Authorization': 'Bearer ' + self.token})
-#         self.assertEqual(response.status_code, 409)
-#
-#     def test_edit_book_no_json(self):
-#         response = self.app_test.post('/api/fragments/edit/1',
-#                                       headers={'Authorization': 'Bearer ' + self.token})
-#         self.assertEqual(response.status_code, 400)
+class TestAddEdit(TestBase):
+
+    def test_add_book(self):
+        response = self.app_test.post('/api/books/add',
+                                      json={
+                                          "title": "Test 3",
+                                          "author": "Test Author 3",
+                                          "publish_date": "03/03/1999",
+                                          "isbn_num": "4124242142421",
+                                          "page_count": 2500,
+                                          "cover_link": "blank.com",
+                                          "language": "english",
+
+                                      })
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_many_books(self):
+        response = self.app_test.post('/api/books/import',
+                                      json={"data":[{
+                                          "title": "Test 4",
+                                          "author": "Test Author 4",
+                                          "publish_date": "03/03/1999",
+                                          "isbn_num": "4124242142421",
+                                          "page_count": 2500,
+                                          "cover_link": "blank.com",
+                                          "language": "english",
+
+                                      },
+                                      {
+                                          "title": "Eloquent JavaScript, Third Edition",
+                                          "author": "Marijn Haverbeke",
+                                          "publish_date": "2018-12-04T00:00:00.000Z",
+                                          "isbn_num": "9781593279509",
+                                          "page_count": 4567,
+                                          "cover_link": "http://eloquentjavascript.net/",
+                                          "language": "English"
+                                      }
+                                      ]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Book.query.count(), 6)
+
+
+    def test_delete_book(self):
+        response = self.app_test.delete('/api/books/delete/1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Book.query.count(), 5)
+
+    def test_edit_non_existing_book(self):
+        response = self.app_test.put('/api/books/edit/9', json={})
+        self.assertEqual(response.status_code, 409)
+
+    def test_edit_book_no_json(self):
+        response = self.app_test.put('/api/books/edit/1')
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == '__main__':
