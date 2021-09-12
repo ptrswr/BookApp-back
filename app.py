@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from books_stash import book_stash
 from book_model import db
+from config import DevelopmentConf
 
 
 def create_app(conf):
@@ -14,3 +15,8 @@ def create_app(conf):
         db.session.commit()
     app.register_blueprint(book_stash)
     return app
+
+
+if __name__ == '__main__':
+    app = create_app(DevelopmentConf)
+    app.run()
